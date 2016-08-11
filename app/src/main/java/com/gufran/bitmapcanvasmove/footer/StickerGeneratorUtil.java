@@ -25,7 +25,7 @@ public class StickerGeneratorUtil {
 
     final int backgroundColor = Color.WHITE;
 
-    private Bitmap generateFooterInfoBitMap(int w, int h, TextConfiguration textConfiguration) {
+    private Bitmap paintFooterInfoBitMap(int w, int h, TextConfiguration textConfiguration) {
         // if (textConfiguration == null) throw new Exception("Text Configuration can't be null");
 
         Bitmap mainBitMap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -54,7 +54,7 @@ public class StickerGeneratorUtil {
         return mainBitMap;
     }
 
-    private Bitmap generateUserInfoBitmap(int w, int h, Bitmap bitmapUser, NameTextConfiguration nameTextConfiguration, PhoneTextConfiguration phoneTextConfiguration, EmailTextConfiguration emailTextConfiguration) {
+    private Bitmap paintUserInfoBitmap(int w, int h, Bitmap bitmapUserAvatar, NameTextConfiguration nameTextConfiguration, PhoneTextConfiguration phoneTextConfiguration, EmailTextConfiguration emailTextConfiguration) {
         Bitmap mainBitMap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(mainBitMap);
 
@@ -67,10 +67,10 @@ public class StickerGeneratorUtil {
         //----->>creating user image
         Paint userImagePaint = new Paint();
         userImagePaint.setAntiAlias(true);
-        bitmapUser = imu.scaleDown(bitmapUser, (int) (0.70 * h), true);//scale down image to 60% of the height of canvas
-        int userImagePosX = (int) (0.2 * w) - bitmapUser.getWidth() / 2;// 20% of width-half of bmp width
-        int userImagePosY = (int) (0.5 * h) - bitmapUser.getHeight() / 2;// 50 % of height-half of bmp height
-        canvas.drawBitmap(bitmapUser, userImagePosX, userImagePosY, userImagePaint);
+        bitmapUserAvatar = imu.scaleDown(bitmapUserAvatar, (int) (0.70 * h), true);//scale down image to 60% of the height of canvas
+        int userImagePosX = (int) (0.2 * w) - bitmapUserAvatar.getWidth() / 2;// 20% of width-half of bmp width
+        int userImagePosY = (int) (0.5 * h) - bitmapUserAvatar.getHeight() / 2;// 50 % of height-half of bmp height
+        canvas.drawBitmap(bitmapUserAvatar, userImagePosX, userImagePosY, userImagePaint);
 
         //----->> setting up name
         Paint namePaint = new Paint();
@@ -113,17 +113,12 @@ public class StickerGeneratorUtil {
             canvas.drawText(emailTextConfiguration.getText(), emailPosX, emailPosY, emailPaint);
         }
 
-
         canvas.drawBitmap(mainBitMap, rect, rect, backgroundPaint);
         return mainBitMap;
     }
 
 
-    public Bitmap generateHalfSticker(Context context, Bitmap sourceBitmap, String name, String phone, String email) {
-        int userFooterWidth = (int) (0.55 * sourceBitmap.getWidth());
-
-        int footerHeight = (int) (0.25 * sourceBitmap.getHeight());
-
+    private Bitmap getUserInfoBitmap(Context context, int width, int height, String name, String phone, String email) {
         File path = Environment.getExternalStorageDirectory();
         File imageFile = new File(path, "user.png");
         Bitmap userPic = BitmapFactory.decodeFile(imageFile.getPath(), null);
@@ -132,38 +127,50 @@ public class StickerGeneratorUtil {
         //--->Name Configuration
         NameTextConfiguration nameTextConfiguration = new NameTextConfiguration(context, name
         );
-        nameTextConfiguration.setSize((int) (0.25 * footerHeight));
+        nameTextConfiguration.setSize((int) (0.25 * height));
         nameTextConfiguration.setColor(Color.DKGRAY);
         nameTextConfiguration.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Medium.ttf"));
 
         //--->Phone Configuration
         PhoneTextConfiguration phoneTextConfiguration = new PhoneTextConfiguration(context, phone);
-        phoneTextConfiguration.setSize((int) (0.15 * footerHeight));
+        phoneTextConfiguration.setSize((int) (0.15 * height));
         phoneTextConfiguration.setColor(Color.DKGRAY);
         phoneTextConfiguration.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Light.ttf"));
 
         //--->Email Configuration
         EmailTextConfiguration emailTextConfiguration = new EmailTextConfiguration(context, email);
-        emailTextConfiguration.setSize((int) (0.15 * footerHeight));
+        emailTextConfiguration.setSize((int) (0.15 * height));
         emailTextConfiguration.setColor(Color.DKGRAY);
         emailTextConfiguration.setTypeface(Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Light.ttf"));
 
-        Bitmap bmpUser = generateUserInfoBitmap(userFooterWidth, footerHeight, userPic, nameTextConfiguration, phoneTextConfiguration, emailTextConfiguration);
+        return paintUserInfoBitmap(width, height, userPic, nameTextConfiguration, phoneTextConfiguration, emailTextConfiguration);
+    }
 
-        return bmpUser;
+    private Bitmap getFooterInfoBitmap(Context context, int width, int height, String name, String phone, String email) {
+        TextConfiguration textConfiguration = new TextConfiguration(context, "For other details,please contact me");
+        textConfiguration.setSize((int) (0.15 * height));
+        return paintFooterInfoBitMap(width, height, textConfiguration);
+    }
+
+    public Bitmap generateHalfSticker(Context context, Bitmap sourceBitmap, String name, String phone, String email) {
+        int userFooterWidth = (int) (1.0 * sourceBitmap.getWidth());
+        int footerHeight = (int) (0.15 * sourceBitmap.getHeight());
+        return getUserInfoBitmap(context, userFooterWidth, footerHeight, name, phone, email);
     }
 
 
-    public Bitmap generateFullSticker(Context context, Bitmap sourceBitmap, String name, String phone, String email) {
+    public Bitmap generateFullSticker(Context context, Bitmap sourceBitmap, String name, String phone, String email, boolean shouldRemoveInfo) {
         int infoFooterWidth = (int) (0.45 * sourceBitmap.getWidth());
         int footerHeight = (int) (0.25 * sourceBitmap.getHeight());
+        int userFooterWidth = (int) (0.55 * sourceBitmap.getWidth());
 
-        TextConfiguration textConfiguration = new TextConfiguration(context, "For other details,please contact me");
-        textConfiguration.setSize((int) (0.15 * footerHeight));
+        Bitmap bmpUser = getUserInfoBitmap(context, userFooterWidth, footerHeight, name, phone, email);
+        if (shouldRemoveInfo == false) {
+            Bitmap bmpInfo = getFooterInfoBitmap(context, infoFooterWidth, footerHeight, name, phone, email);
+            return imu.joinBitmap(bmpInfo, bmpUser, true);
+        } else {
+            return bmpUser;
+        }
 
-        Bitmap bmpInfo = generateFooterInfoBitMap(infoFooterWidth, footerHeight, textConfiguration);
-        Bitmap bmpUser = generateHalfSticker(context, sourceBitmap, name, phone, email);
-
-        return imu.joinBitmap(bmpInfo, bmpUser, true);
     }
 }

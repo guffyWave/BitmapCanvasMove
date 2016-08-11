@@ -29,6 +29,10 @@ public class MyChainView extends View {
 
     StickerGeneratorUtil stickerGeneratorUtil;
 
+    Orientation orientation;
+
+    boolean shouldRemoveInfo;
+
     public MyChainView(Context context, Bitmap baseBitmap) {
         super(context);
         this.context = context;
@@ -41,8 +45,21 @@ public class MyChainView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         baseBitmap = ImageManipulationUtil.scaleDown(baseBitmap, getMeasuredWidth(), true);
-        stickerBitmap = stickerGeneratorUtil.generateFullSticker(context, baseBitmap, name, phone, email);
 
+        if (baseBitmap.getWidth() > baseBitmap.getHeight()) {
+            orientation = Orientation.LANDSCAPE;
+        } else {
+            orientation = Orientation.PORTRAIT;
+        }
+        updateStickerBitmap();
+    }
+
+    private void updateStickerBitmap() {
+        if (orientation == Orientation.LANDSCAPE) {
+            stickerBitmap = stickerGeneratorUtil.generateFullSticker(context, baseBitmap, name, phone, email, shouldRemoveInfo);
+        } else {
+            stickerBitmap = stickerGeneratorUtil.generateHalfSticker(context, baseBitmap, name, phone, email);
+        }
         //position the sticker at bottom of the bitmap
         x = 0 + stickerBitmap.getWidth() / 2; // adding the centered padding
         y = baseBitmap.getHeight() + stickerBitmap.getHeight() / 2; // adding the centered padding
@@ -96,6 +113,16 @@ public class MyChainView extends View {
         }
 
         return bitmap;
+    }
+
+    public void setShouldRemoveInfo(boolean shouldRemoveInfo) {
+        this.shouldRemoveInfo = shouldRemoveInfo;
+        updateStickerBitmap();
+        invalidate();
+    }
+
+    enum Orientation {
+        LANDSCAPE, PORTRAIT;
     }
 
 }

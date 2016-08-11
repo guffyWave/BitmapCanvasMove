@@ -20,13 +20,19 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:layout_marginBottom="30dp"
         android:onClick="onPrint"
         android:text="Print" />
 
-
+    <CheckBox
+        android:id="@+id/informationCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Remove Information" />
 
 
 </RelativeLayout>

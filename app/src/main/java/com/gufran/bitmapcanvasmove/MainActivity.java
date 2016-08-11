@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 
 import java.io.FileNotFoundException;
@@ -16,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
     MyChainView myChainView;
     RelativeLayout mainRelativeLayout;
+    CheckBox informationCheckBox;
 
     final int RQS_IMAGE1 = 1;
 
@@ -29,6 +32,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mainRelativeLayout = (RelativeLayout) findViewById(R.id.mainRelativeLayout);
+        informationCheckBox = (CheckBox) findViewById(R.id.informationCheckBox);
+
+        informationCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                myChainView.setShouldRemoveInfo(isChecked);
+            }
+        });
     }
 
     public void onBrowse(View view) {
