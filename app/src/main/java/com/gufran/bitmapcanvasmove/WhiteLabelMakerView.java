@@ -17,8 +17,8 @@ import java.io.FileOutputStream;
 /**
  * Created by gufran on 8/10/16.
  */
-public class MyChainView extends View {
-    Bitmap baseBitmap, stickerBitmap;
+public class WhiteLabelMakerView extends View {
+    Bitmap baseBitmap, stickerBitmap, cachedBaseBitmap;
     Context context;
     float x = 0;
     float y = 0;
@@ -32,11 +32,13 @@ public class MyChainView extends View {
     Orientation orientation;
 
     boolean shouldRemoveInfo;
+    boolean isDragMode;
 
-    public MyChainView(Context context, Bitmap baseBitmap) {
+    public WhiteLabelMakerView(Context context, Bitmap baseBitmap) {
         super(context);
         this.context = context;
         this.baseBitmap = baseBitmap;
+        this.cachedBaseBitmap = baseBitmap;
         setBackgroundColor(Color.TRANSPARENT);
         stickerGeneratorUtil = new StickerGeneratorUtil();
     }
@@ -45,7 +47,6 @@ public class MyChainView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         baseBitmap = ImageManipulationUtil.scaleDown(baseBitmap, getMeasuredWidth(), true);
-
         if (baseBitmap.getWidth() > baseBitmap.getHeight()) {
             orientation = Orientation.LANDSCAPE;
         } else {
@@ -53,6 +54,16 @@ public class MyChainView extends View {
         }
         updateStickerBitmap();
     }
+
+    private void updateDragMode(boolean isDragMode) {
+        if (isDragMode) {
+            baseBitmap = ImageManipulationUtil.tintBitmap(baseBitmap, Color.argb(150, 140, 140, 140));
+        } else {
+            baseBitmap = cachedBaseBitmap;
+            baseBitmap = ImageManipulationUtil.scaleDown(baseBitmap, getMeasuredWidth(), true);
+        }
+    }
+
 
     private void updateStickerBitmap() {
         if (orientation == Orientation.LANDSCAPE) {
@@ -68,19 +79,22 @@ public class MyChainView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
+        if (isDragMode) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
 //                x = event.getX();
 //                y = event.getY();
 //                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                x = event.getX();
-                y = event.getY();
-                invalidate();
-                break;
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    x = event.getX();
+                    y = event.getY();
+                    invalidate();
+                    break;
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -118,6 +132,12 @@ public class MyChainView extends View {
     public void setShouldRemoveInfo(boolean shouldRemoveInfo) {
         this.shouldRemoveInfo = shouldRemoveInfo;
         updateStickerBitmap();
+        invalidate();
+    }
+
+    public void enableDragMode(boolean isDragMode) {
+        this.isDragMode = isDragMode;
+        updateDragMode(isDragMode);
         invalidate();
     }
 

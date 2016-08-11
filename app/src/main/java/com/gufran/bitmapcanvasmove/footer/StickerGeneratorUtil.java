@@ -123,7 +123,6 @@ public class StickerGeneratorUtil {
         File imageFile = new File(path, "user.png");
         Bitmap userPic = BitmapFactory.decodeFile(imageFile.getPath(), null);
 
-
         //--->Name Configuration
         NameTextConfiguration nameTextConfiguration = new NameTextConfiguration(context, name
         );

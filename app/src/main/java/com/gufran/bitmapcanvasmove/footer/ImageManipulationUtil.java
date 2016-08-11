@@ -2,9 +2,9 @@ package com.gufran.bitmapcanvasmove.footer;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
-import android.graphics.Rect;
 
 /**
  * Created by gufran on 8/2/16.
@@ -23,6 +23,18 @@ public class ImageManipulationUtil {
         Bitmap newBitmap = Bitmap.createScaledBitmap(realImage, width,
                 height, filter);
         return newBitmap;
+    }
+
+
+    public static Bitmap tintBitmap(Bitmap bitmap, int color) {
+        Paint paint = new Paint(color);
+        ColorFilter filter = new LightingColorFilter(color, 1);
+        paint.setColorFilter(filter);
+        //paint.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+        Bitmap bitmapResult = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmapResult);
+        canvas.drawBitmap(bitmap, 0, 0, paint);
+        return bitmapResult;
     }
 
     public Bitmap joinBitmap(Bitmap footerInfo, Bitmap footerUser, boolean isJoinHorizontally) {

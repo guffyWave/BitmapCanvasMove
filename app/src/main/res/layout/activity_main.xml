@@ -13,9 +13,18 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="30dp"
         android:onClick="onBrowse"
         android:text="Browse" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/dragSwitchCompat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/browseButton"
+        android:layout_marginBottom="30dp"
+        android:checked="false"
+        android:text="Enable Drag" />
 
     <Button
         android:layout_width="wrap_content"
